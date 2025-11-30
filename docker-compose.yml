@@ -1,0 +1,19 @@
+services:
+  notes:
+    build: .
+    container_name: notes-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - notes-data:/app/data
+    environment:
+      - DATABASE_URL=file:/app/data/notes.db
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  notes-data:
