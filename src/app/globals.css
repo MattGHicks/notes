@@ -1,20 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Earthy Green Palette */
+  --sage-50: #f6f9f4;
+  --sage-100: #e8f0e4;
+  --sage-200: #d4e4cd;
+  --sage-300: #b5d1a8;
+  --sage-400: #8fb87d;
+  --sage-500: #6b9b57;
+  --sage-600: #547d44;
+  --sage-700: #436338;
+  --sage-800: #384f30;
+  --sage-900: #2f4229;
+  --sage-950: #162314;
+
+  /* Warm Neutrals */
+  --cream-50: #fdfcfa;
+  --cream-100: #faf8f3;
+  --cream-200: #f5f1e8;
+  --cream-300: #ebe5d6;
+  --cream-400: #d9cdb5;
+  --cream-500: #c4b493;
+
+  /* Forest Tones */
+  --forest-700: #3d4a3a;
+  --forest-800: #2a332a;
+  --forest-900: #1c231c;
+  --forest-950: #0f140f;
+
+  /* Terracotta Accent */
+  --terra-400: #c9a86c;
+  --terra-500: #b8935a;
+
+  /* Light Theme */
+  --background: var(--cream-50);
+  --background-secondary: var(--cream-100);
+  --background-tertiary: #ffffff;
+  --foreground: var(--forest-800);
+  --foreground-muted: var(--forest-700);
+  --border: var(--cream-300);
+  --border-subtle: var(--cream-200);
+  --primary: var(--sage-600);
+  --primary-hover: var(--sage-700);
+  --primary-light: var(--sage-100);
+  --primary-muted: var(--sage-200);
+  --accent: var(--terra-500);
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: var(--forest-950);
+  --background-secondary: var(--forest-900);
+  --background-tertiary: var(--forest-800);
+  --foreground: var(--cream-100);
+  --foreground-muted: var(--cream-300);
+  --border: var(--forest-700);
+  --border-subtle: var(--forest-800);
+  --primary: var(--sage-400);
+  --primary-hover: var(--sage-300);
+  --primary-light: rgba(107, 155, 87, 0.15);
+  --primary-muted: rgba(107, 155, 87, 0.25);
+  --accent: var(--terra-400);
+}
+
+* {
+  font-family: var(--font-body);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  font-feature-settings: 'ss01' on, 'ss02' on;
+}
+
+/* Subtle noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.015;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.dark body::before {
+  opacity: 0.03;
 }
 
 /* TipTap Editor Styles */
@@ -25,73 +103,168 @@ body {
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: #9ca3af;
+  color: var(--foreground-muted);
+  opacity: 0.5;
   pointer-events: none;
   height: 0;
-}
-
-.dark .ProseMirror p.is-editor-empty:first-child::before {
-  color: #6b7280;
+  font-style: italic;
 }
 
 /* Prose styles for editor content */
 .prose h1 {
-  @apply text-2xl font-bold mt-6 mb-4;
+  @apply text-2xl mt-8 mb-4;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--foreground);
 }
 
 .prose h2 {
-  @apply text-xl font-bold mt-5 mb-3;
+  @apply text-xl mt-6 mb-3;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--foreground);
 }
 
 .prose h3 {
-  @apply text-lg font-bold mt-4 mb-2;
+  @apply text-lg mt-5 mb-2;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--foreground);
 }
 
 .prose p {
-  @apply my-2;
+  @apply my-3 leading-relaxed;
+  color: var(--foreground);
 }
 
 .prose ul,
 .prose ol {
-  @apply my-2 pl-6;
+  @apply my-3 pl-6;
 }
 
 .prose ul {
-  @apply list-disc;
+  list-style-type: disc;
 }
 
 .prose ol {
-  @apply list-decimal;
+  list-style-type: decimal;
 }
 
 .prose li {
-  @apply my-1;
+  @apply my-1.5 leading-relaxed;
+  color: var(--foreground);
+}
+
+.prose li::marker {
+  color: var(--primary);
 }
 
 .prose blockquote {
-  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-4 italic text-gray-600 dark:text-gray-400;
+  @apply pl-5 my-5 italic;
+  border-left: 3px solid var(--primary);
+  color: var(--foreground-muted);
 }
 
 .prose code {
-  @apply bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono;
+  @apply px-1.5 py-0.5 rounded text-sm;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 .prose pre {
-  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg my-4 overflow-x-auto;
+  @apply p-5 rounded-xl my-5 overflow-x-auto;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-subtle);
 }
 
 .prose pre code {
-  @apply bg-transparent p-0;
+  background: transparent;
+  color: var(--foreground);
+  padding: 0;
 }
 
 .prose hr {
-  @apply my-6 border-gray-200 dark:border-gray-700;
+  @apply my-8;
+  border-color: var(--border);
 }
 
 .prose strong {
-  @apply font-bold;
+  @apply font-semibold;
+  color: var(--foreground);
 }
 
 .prose em {
   @apply italic;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-muted);
+}
+
+/* Selection color */
+::selection {
+  background: var(--primary-muted);
+  color: var(--foreground);
+}
+
+/* Focus ring */
+.focus-ring {
+  @apply outline-none ring-2 ring-offset-2;
+  ring-color: var(--primary);
+  ring-offset-color: var(--background);
+}
+
+/* Smooth transitions */
+.transition-theme {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.4s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }
