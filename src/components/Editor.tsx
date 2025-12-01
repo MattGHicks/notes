@@ -42,7 +42,7 @@ export function Editor({ note, onUpdateNote, onShareNote, onUnshareNote }: Edito
     extensions: [
       StarterKit,
       Placeholder.configure({
-        placeholder: "Start writing your thoughts...",
+        placeholder: "Start writing...",
       }),
     ],
     content: note?.content || "",
