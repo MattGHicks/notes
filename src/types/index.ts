@@ -14,4 +14,5 @@ export interface Note {
   updatedAt: string;
   folderId: string | null;
   folder: Folder | null;
+  shareToken: string | null;
 }

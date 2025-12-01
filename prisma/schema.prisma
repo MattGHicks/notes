@@ -16,11 +16,12 @@ model Folder {
 }
 
 model Note {
-  id        String   @id @default(cuid())
-  title     String
-  content   String   @default("")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  folder    Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  folderId  String?
+  id         String   @id @default(cuid())
+  title      String
+  content    String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  folder     Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  folderId   String?
+  shareToken String?  @unique
 }

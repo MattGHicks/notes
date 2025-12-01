@@ -102,6 +102,24 @@ export function useNotes() {
     fetchNotes();
   };
 
+  const shareNote = async (id: string) => {
+    const res = await fetch(`/api/notes/${id}/share`, { method: "POST" });
+    const { shareToken } = await res.json();
+    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, shareToken } : n)));
+    if (selectedNote?.id === id) {
+      setSelectedNote((prev) => prev ? { ...prev, shareToken } : null);
+    }
+    return shareToken;
+  };
+
+  const unshareNote = async (id: string) => {
+    await fetch(`/api/notes/${id}/share`, { method: "DELETE" });
+    setNotes((prev) => prev.map((n) => (n.id === id ? { ...n, shareToken: null } : n)));
+    if (selectedNote?.id === id) {
+      setSelectedNote((prev) => prev ? { ...prev, shareToken: null } : null);
+    }
+  };
+
   return {
     notes,
     folders,
@@ -118,6 +136,8 @@ export function useNotes() {
     createFolder,
     updateFolder,
     deleteFolder,
+    shareNote,
+    unshareNote,
     refreshNotes: fetchNotes,
   };
 }

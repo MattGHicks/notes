@@ -4,7 +4,6 @@ import { useNotes } from "@/hooks/useNotes";
 import { Sidebar } from "./Sidebar";
 import { Editor } from "./Editor";
 import { ThemeToggle } from "./ThemeToggle";
-import { Loader2Icon } from "lucide-react";
 
 export function NotesApp() {
   const {
@@ -23,6 +22,8 @@ export function NotesApp() {
     createFolder,
     updateFolder,
     deleteFolder,
+    shareNote,
+    unshareNote,
   } = useNotes();
 
   if (loading) {
@@ -95,7 +96,12 @@ export function NotesApp() {
           onDeleteFolder={deleteFolder}
           onRenameFolder={updateFolder}
         />
-        <Editor note={selectedNote} onUpdateNote={updateNote} />
+        <Editor
+          note={selectedNote}
+          onUpdateNote={updateNote}
+          onShareNote={shareNote}
+          onUnshareNote={unshareNote}
+        />
       </div>
     </div>
   );

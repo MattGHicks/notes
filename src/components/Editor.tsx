@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -17,16 +17,26 @@ import {
   Undo2Icon,
   Redo2Icon,
   PenLineIcon,
+  Share2Icon,
+  CopyIcon,
+  CheckIcon,
+  XIcon,
+  ExternalLinkIcon,
 } from "lucide-react";
 
 interface EditorProps {
   note: Note | null;
   onUpdateNote: (id: string, data: Partial<Note>) => void;
+  onShareNote: (id: string) => Promise<string>;
+  onUnshareNote: (id: string) => Promise<void>;
 }
 
-export function Editor({ note, onUpdateNote }: EditorProps) {
+export function Editor({ note, onUpdateNote, onShareNote, onUnshareNote }: EditorProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -201,6 +211,23 @@ export function Editor({ note, onUpdateNote }: EditorProps) {
             <Redo2Icon className="w-4 h-4" />
           </ToolbarButton>
         </div>
+
+        <div className="w-px h-5 bg-cream-300 dark:bg-forest-700 mx-1" />
+
+        <button
+          onClick={() => setShowShareModal(true)}
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
+            note.shareToken
+              ? "bg-sage-100 dark:bg-sage-900/40 text-sage-700 dark:text-sage-300"
+              : "bg-cream-100 dark:bg-forest-800 text-forest-700 dark:text-cream-300 hover:bg-cream-200 dark:hover:bg-forest-700"
+          }`}
+          title="Share note"
+        >
+          <Share2Icon className="w-4 h-4" />
+          <span className="text-sm font-medium">
+            {note.shareToken ? "Shared" : "Share"}
+          </span>
+        </button>
       </div>
 
       {/* Title & Content */}
@@ -217,6 +244,146 @@ export function Editor({ note, onUpdateNote }: EditorProps) {
           />
           <div className="w-12 h-1 bg-sage-300 dark:bg-sage-700 rounded-full mb-8" />
           <EditorContent editor={editor} />
+        </div>
+      </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <ShareModal
+          note={note}
+          onClose={() => {
+            setShowShareModal(false);
+            setCopied(false);
+          }}
+          onShare={async () => {
+            setSharing(true);
+            await onShareNote(note.id);
+            setSharing(false);
+          }}
+          onUnshare={async () => {
+            setSharing(true);
+            await onUnshareNote(note.id);
+            setSharing(false);
+          }}
+          copied={copied}
+          onCopy={() => {
+            const url = `${window.location.origin}/share/${note.shareToken}`;
+            navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          sharing={sharing}
+        />
+      )}
+    </div>
+  );
+}
+
+function ShareModal({
+  note,
+  onClose,
+  onShare,
+  onUnshare,
+  copied,
+  onCopy,
+  sharing,
+}: {
+  note: Note;
+  onClose: () => void;
+  onShare: () => void;
+  onUnshare: () => void;
+  copied: boolean;
+  onCopy: () => void;
+  sharing: boolean;
+}) {
+  const shareUrl = note.shareToken
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/share/${note.shareToken}`
+    : null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-forest-950/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative bg-white dark:bg-forest-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-slideIn">
+        <div className="flex items-center justify-between p-5 border-b border-cream-200 dark:border-forest-700">
+          <h2 className="text-lg font-display font-semibold text-forest-800 dark:text-cream-100">
+            Share Note
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-cream-100 dark:hover:bg-forest-800 text-forest-700 dark:text-cream-300 transition-colors"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-5">
+          {note.shareToken ? (
+            <div className="space-y-4">
+              <p className="text-sm text-forest-700 dark:text-cream-300">
+                Anyone with this link can view this note.
+              </p>
+
+              <div className="flex gap-2">
+                <div className="flex-1 flex items-center gap-2 px-3 py-2.5 bg-cream-100 dark:bg-forest-800 rounded-lg border border-cream-300 dark:border-forest-700">
+                  <span className="text-sm text-forest-700 dark:text-cream-300 truncate flex-1">
+                    {shareUrl}
+                  </span>
+                </div>
+                <button
+                  onClick={onCopy}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-sage-500 hover:bg-sage-600 text-white rounded-lg transition-colors font-medium"
+                >
+                  {copied ? (
+                    <>
+                      <CheckIcon className="w-4 h-4" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <a
+                  href={shareUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-sage-600 dark:text-sage-400 hover:underline"
+                >
+                  <ExternalLinkIcon className="w-4 h-4" />
+                  Open in new tab
+                </a>
+                <button
+                  onClick={onUnshare}
+                  disabled={sharing}
+                  className="text-sm text-red-600 dark:text-red-400 hover:underline disabled:opacity-50"
+                >
+                  {sharing ? "Removing..." : "Remove link"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-forest-700 dark:text-cream-300">
+                Create a public link to share this note with anyone.
+              </p>
+              <button
+                onClick={onShare}
+                disabled={sharing}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-sage-500 hover:bg-sage-600 disabled:bg-sage-400 text-white rounded-xl transition-colors font-medium"
+              >
+                <Share2Icon className="w-4 h-4" />
+                {sharing ? "Creating link..." : "Create share link"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

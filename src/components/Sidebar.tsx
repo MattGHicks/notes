@@ -11,7 +11,6 @@ import {
   TrashIcon,
   PencilIcon,
   ChevronRightIcon,
-  ChevronDownIcon,
   SparklesIcon,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
